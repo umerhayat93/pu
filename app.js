@@ -374,7 +374,6 @@ function handleLogin(e) {
     btn.disabled = false;
 
     if (username === 'umerhayat1993' && password === 'umer0895') {
-      // Existing hardcoded user
       if (!State.user) {
         State.user = {
           name: 'Umer Hayat',
@@ -386,21 +385,20 @@ function handleLogin(e) {
       }
       loginSuccess();
     } else {
-      // Check registered users
-      try {
-        const users = JSON.parse(localStorage.getItem('payu_users') || '[]');
-        const found = users.find(u => u.username === username && u.password === password);
-        if (found) {
-          State.user = found;
-          State.balance = parseFloat(localStorage.getItem(`payu_balance_${found.username}`) || '0');
-          loginSuccess();
-        } else {
-          toast('Invalid username or password', 'error');
-          $('#login-username').style.borderColor = 'var(--accent-red)';
-          setTimeout(() => $('#login-username').style.borderColor = '', 2000);
-        }
-      } catch(err) {
+      // All other accounts are pending approval — never allow login
+      const users = JSON.parse(localStorage.getItem('payu_users') || '[]');
+      const found = users.find(u => u.username === username);
+      if (found) {
+        // Account exists but pending
+        showPopup(
+          'Account Pending Approval',
+          'Your account is currently pending review by the PayU Team. You will be notified once your account is approved and activated.',
+          '⏳'
+        );
+      } else {
         toast('Invalid username or password', 'error');
+        $('#login-username').style.borderColor = 'var(--accent-red)';
+        setTimeout(() => $('#login-username').style.borderColor = '', 2000);
       }
     }
   }, 800);
@@ -549,7 +547,6 @@ function handleDeposit(e) {
     }
     // Reset form
     $('#deposit-form').reset();
-    document.querySelectorAll('#deposit-currency-chips .currency-chip').forEach((c,i) => c.classList.toggle('active', i===0));
     $('#deposit-currency').value = 'USD';
   }, delay);
 }
@@ -699,12 +696,12 @@ function buildUI() {
   document.body.innerHTML = `
     <!-- SPLASH -->
     <div id="splash">
-      <div class="splash-logo">
-        <img src="icons/icon-512.png" width="70" height="70" alt="PayU" style="border-radius:14px;display:block">
+      <div class="splash-text-wrap">
+        <div class="splash-pay">Pay</div>
+        <div class="splash-u">U</div>
       </div>
-      <div class="splash-name">PayU</div>
       <div class="splash-tagline">Digital Wallet</div>
-      <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+      <div class="splash-line"></div>
     </div>
 
     <!-- BACKGROUND -->
@@ -929,53 +926,67 @@ function buildUI() {
 
         <div class="form-section">
           <form id="deposit-form" onsubmit="handleDeposit(event)">
-            <div class="form-card">
-              <label class="input-label">Amount</label>
-              <div class="amount-input-wrap">
-                <span class="amount-prefix">$</span>
-                <input type="number" id="deposit-amount" placeholder="0.00" min="1" step="0.01" style="padding-left:50px;font-size:32px;font-weight:800;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);width:100%;padding-top:16px;padding-bottom:16px;color:var(--text-primary);font-family:var(--font-display);outline:none;transition:all var(--transition)" onFocus="this.style.borderColor='var(--accent-blue)'" onBlur="this.style.borderColor='var(--border)'">
-              </div>
-
-              <label class="input-label" style="margin-top:20px">Currency</label>
-              <div class="currency-selector" id="deposit-currency-chips">
-                <div class="currency-chip active" data-val="USD" onclick="selectCurrencyChip(this, 'deposit')">USD $</div>
-                <div class="currency-chip" data-val="EUR" onclick="selectCurrencyChip(this, 'deposit')">EUR €</div>
-                <div class="currency-chip" data-val="GBP" onclick="selectCurrencyChip(this, 'deposit')">GBP £</div>
-                <div class="currency-chip" data-val="PKR" onclick="selectCurrencyChip(this, 'deposit')">PKR ₨</div>
-              </div>
-              <input type="hidden" id="deposit-currency" value="USD">
-            </div>
 
             <div class="form-card">
+              <!-- 1. AMOUNT -->
               <div class="input-group">
-                <label class="input-label">Select Bank</label>
+                <label class="input-label">Amount</label>
+                <div class="input-wrap" style="position:relative">
+                  <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:20px;font-weight:700;color:var(--text-secondary);z-index:1;pointer-events:none">$</span>
+                  <input type="number" id="deposit-amount" placeholder="0.00" min="1" step="0.01"
+                    style="padding-left:36px;font-size:28px;font-weight:700;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);width:100%;padding-top:16px;padding-bottom:16px;color:var(--text-primary);font-family:var(--font-display);outline:none;transition:all var(--transition)"
+                    onfocus="this.style.borderColor='var(--accent-blue)'" onblur="this.style.borderColor='var(--border)'">
+                </div>
+                <input type="hidden" id="deposit-currency" value="USD">
+              </div>
+
+              <!-- 2. BANK -->
+              <div class="input-group">
+                <label class="input-label">Bank</label>
                 <div class="input-wrap">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
                   <select id="deposit-bank">
-                    <option value="">— Choose bank —</option>
-                    <option>Chase Bank</option>
-                    <option>Bank of America</option>
-                    <option>Wells Fargo</option>
-                    <option>Citibank</option>
-                    <option>Capital One</option>
-                    <option>TD Bank</option>
-                    <option>HSBC</option>
-                    <option>Barclays</option>
-                    <option>Standard Chartered</option>
+                    <option value="">— Select your bank —</option>
+                    <optgroup label="United States">
+                      <option>Chase Bank</option>
+                      <option>Bank of America</option>
+                      <option>Wells Fargo</option>
+                      <option>Citibank</option>
+                      <option>Capital One</option>
+                      <option>TD Bank</option>
+                    </optgroup>
+                    <optgroup label="International">
+                      <option>HSBC</option>
+                      <option>Barclays</option>
+                      <option>Standard Chartered</option>
+                      <option>Deutsche Bank</option>
+                      <option>BNP Paribas</option>
+                    </optgroup>
+                    <optgroup label="Pakistan">
+                      <option>HBL (Habib Bank)</option>
+                      <option>UBL (United Bank)</option>
+                      <option>MCB Bank</option>
+                      <option>Allied Bank</option>
+                      <option>Meezan Bank</option>
+                      <option>Bank Alfalah</option>
+                      <option>NBP (National Bank)</option>
+                    </optgroup>
                   </select>
                 </div>
               </div>
 
+              <!-- 3. ACCOUNT NUMBER / IBAN -->
               <div class="input-group">
-                <label class="input-label">IBAN / Account Number</label>
+                <label class="input-label">Account Number / IBAN</label>
                 <div class="input-wrap">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  <input type="text" id="deposit-iban" placeholder="Enter IBAN or account number" autocapitalize="characters">
+                  <input type="text" id="deposit-iban" placeholder="Enter IBAN or account number" autocapitalize="characters" autocomplete="off">
                 </div>
               </div>
 
-              <div class="input-group">
-                <label class="input-label">Note (optional)</label>
+              <!-- 4. NOTE -->
+              <div class="input-group" style="margin-bottom:0">
+                <label class="input-label">Note <span style="color:var(--text-muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label>
                 <div class="input-wrap">
                   <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                   <input type="text" id="deposit-note" placeholder="Add a note...">
@@ -983,8 +994,9 @@ function buildUI() {
               </div>
             </div>
 
+            <!-- 5. SUBMIT -->
             <button type="submit" class="btn btn-primary">
-              <span>Submit Deposit</span>
+              Submit Deposit
             </button>
           </form>
         </div>
@@ -1384,14 +1396,14 @@ function init() {
     }, 100);
   }
 
-  // Hide splash
+  // Hide splash after 3s
   setTimeout(() => {
     const splash = document.getElementById('splash');
     if (splash) splash.classList.add('hide');
     setTimeout(() => {
       if (splash) splash.remove();
     }, 600);
-  }, 1800);
+  }, 3000);
 }
 
 // Start
