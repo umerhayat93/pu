@@ -159,23 +159,20 @@ html, body {
 .logo-icon {
   width: 72px;
   height: 72px;
-  background: linear-gradient(135deg, #1e3a5f, #0f2040);
+  background: transparent;
   border-radius: 20px;
-  border: 1px solid var(--border-strong);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  box-shadow: 0 0 40px var(--glow-blue), var(--shadow-float);
+  box-shadow: 0 8px 32px rgba(17,20,105,0.6);
   position: relative;
   overflow: hidden;
 }
 
 .logo-icon::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), transparent);
+  display: none;
 }
 
 .logo-icon svg {
@@ -1550,82 +1547,102 @@ html, body {
 .empty-icon { font-size: 40px; margin-bottom: 16px; opacity: 0.4; }
 .empty-text { font-size: 15px; text-align: center; }
 
-/* splash */
+/* ===== SPLASH SCREEN ===== */
 #splash {
   position: fixed;
   inset: 0;
-  background: var(--bg-primary);
+  background: #050d1a;
   z-index: 1000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  gap: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 #splash.hide {
   opacity: 0;
   pointer-events: none;
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
-.splash-logo {
-  width: 90px;
-  height: 90px;
-  background: linear-gradient(135deg, #1e3a5f, #0f2040);
-  border-radius: 26px;
-  border: 1px solid var(--border-strong);
+/* The PayU wordmark container */
+.splash-text-wrap {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
-  box-shadow: 0 0 60px var(--glow-blue);
-  animation: splashPulse 1.5s ease infinite;
+  align-items: baseline;
+  gap: 0;
+  margin-bottom: 18px;
 }
 
-@keyframes splashPulse {
-  0%, 100% { box-shadow: 0 0 40px var(--glow-blue); }
-  50% { box-shadow: 0 0 80px rgba(56, 189, 248, 0.25); }
-}
-
-.splash-name {
-  font-size: 42px;
+/* "Pay" slides in from the left */
+.splash-pay {
+  font-size: 72px;
   font-weight: 800;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, #ffffff, var(--accent-blue));
+  letter-spacing: -3px;
+  color: #ffffff;
+  opacity: 0;
+  transform: translateX(-40px);
+  animation: splashPayIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+}
+
+/* "U" slides in from the right with a glow */
+.splash-u {
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #38bdf8, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 8px;
+  opacity: 0;
+  transform: translateX(40px);
+  animation: splashUIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+  filter: drop-shadow(0 0 20px rgba(56,189,248,0.5));
 }
 
+/* Tagline fades up */
 .splash-tagline {
-  font-size: 14px;
-  color: var(--text-secondary);
-  letter-spacing: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 4px;
   text-transform: uppercase;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: splashTagIn 0.5s ease 1s forwards;
 }
 
-.splash-loader {
+/* Animated underline */
+.splash-line {
   position: absolute;
-  bottom: 60px;
-  width: 120px;
+  bottom: 0;
+  left: 0;
   height: 3px;
-  background: rgba(255,255,255,0.08);
-  border-radius: 2px;
-  overflow: hidden;
+  background: linear-gradient(90deg, transparent, #38bdf8, #06b6d4, transparent);
+  animation: splashLineSweep 2.4s ease 0.2s forwards;
+  width: 0;
 }
 
-.splash-loader-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
-  border-radius: 2px;
-  animation: loadBar 1.5s ease-out forwards;
+@keyframes splashPayIn {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-@keyframes loadBar {
-  from { width: 0; }
-  to { width: 100%; }
+@keyframes splashUIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes splashTagIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes splashLineSweep {
+  0%   { width: 0; left: 0; }
+  50%  { width: 100%; left: 0; }
+  100% { width: 0; left: 100%; }
 }
 
 /* ===== RECEIPT OVERLAY ===== */
