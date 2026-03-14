@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PayU">
+  <meta name="theme-color" content="#050d1a">
+  <meta name="description" content="PayU - Your premium decentralized digital wallet">
+  <meta name="msapplication-TileColor" content="#050d1a">
+  
+  <title>PayU — Digital Wallet</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Apple Touch Icons -->
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* Prevent overscroll bounce on iOS */
+    html, body {
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    /* Safe area insets for notched devices */
+    #app {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    #bottom-nav {
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body>
+  <!-- App rendered by app.js -->
+  <noscript>
+    <div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#050d1a;color:#f0f9ff;font-family:sans-serif;text-align:center;padding:32px">
+      <div>
+        <div style="font-size:48px;margin-bottom:16px">💳</div>
+        <h1 style="font-size:24px;margin-bottom:8px">PayU</h1>
+        <p style="color:#94a3b8">Please enable JavaScript to use PayU.</p>
+      </div>
+    </div>
+  </noscript>
+
+  <script src="app.js"></script>
+</body>
+</html>
